@@ -1,4 +1,4 @@
-version: "3"
+version: "3.2"
 services:
   web:
     # replace username/repo:tag with your name and image details
@@ -12,18 +12,24 @@ services:
           cpus: "0.1"
           memory: 50M
     ports:
-      - "80:80"
+      - target: 80
+        published: 8088
+        #protocol: tcp
+        # disable routing mesh https://docs.docker.com/engine/swarm/ingress/#publish-a-port-for-a-service
+        mode: host
+        
     networks:
       - webnet
-  visualizer:
-    image: dockersamples/visualizer:stable
+  redis:
+    image: redis
     ports:
-      - "8080:8080"
-    volumes:
-      - ".:/var/run/docker.sock"
+      - "6379:6379"
+    #volumes:
+    #  - "./redis/data:/data"
     deploy:
       placement:
         constraints: [node.role == manager]
+    command: redis-server --appendonly yes
     networks:
       - webnet
 networks:
